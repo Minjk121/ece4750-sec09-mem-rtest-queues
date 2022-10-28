@@ -70,7 +70,9 @@ def test( cmdline_opts ):
 
   msgs = [
     #    type  opq  addr    len data                type  opq  test len data
-    req( 'in', 0x0, 0x1000, 0, 0xdeadbeef ), resp( 'in',  0x0, 0,   0,  0          ),
+    req( 'in', 0x0, 0x1000, 0, 0xdeadbeef ), resp( 'in',  0x0, 0,   0,  0          ), # INIT
+    req( 'rd', 0x1, 0x1000, 0, 0          ), resp( 'rd',  0x1, 0,   0,  0xdeadbeef ), # READ: both need to match (opague 1 as well)
+
   ]
 
   model = TestHarness( CacheFL(), msgs[::2], msgs[1::2] )
