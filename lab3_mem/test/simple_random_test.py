@@ -81,7 +81,10 @@ def data_1KB():
 #-------------------------------------------------------------------------
 
 def random_msgs():
-
+  ref_mem = [] # called golden reference model
+  for i in range(256):
+    ref_mem += [0xabcd1000+i*4]
+    
   # Create list of 100 random request messages with the corresponding
   # correct response message.
 
@@ -102,8 +105,15 @@ def random_msgs():
 
     # Create a request/response pair.
 
-    msgs.extend([
-      req( 'rd', i, addr, 0, 0 ), resp( 'rd', i, 0, 0, data ),
+    if randint(0,1):
+      msgs.extend([
+        req( 'rd', i, addr, 0, 0 ), resp( 'rd', i, 0, 0, data ),
+      ])
+    else:
+      data = randint(0, 0xffffffff)
+      ref_mem[idx] = data # update reference memory 
+      msgs.extend([
+        req( 'wr', i, addr, 0, data ), resp( 'wr', i, 0, 0, 0 ),
     ])
 
   return msgs
@@ -114,8 +124,9 @@ def random_msgs():
 
 test_case_table = mk_test_case_table([
   (                 "msg_func     mem_data_func stall lat src sink"),
-  [ "random",        random_msgs, data_1KB,     0.0,  0,  0,  0    ],
+  [ "random",        random_msgs, data_1KB,     0.0,  0,  0,  0    ], # data_1KB: intialize mem with rand addr before testing
   [ "random_delays", random_msgs, data_1KB,     0.9,  3,  10, 10   ],
+
 ])
 
 @pytest.mark.parametrize( **test_case_table )
